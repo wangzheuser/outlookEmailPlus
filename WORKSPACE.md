@@ -262,6 +262,29 @@
 
 ---
 
+#### 274I. 修复 v2.6.0 GitHub Release 中文字符编码问题
+
+**时间**：2026-05-19
+
+**问题**：用户发现 GitHub Release v2.6.0 发布日志中所有中文字符全部显示为 `?`（ASCII 0x3F），而 v2.5.0 Release 中文正常。
+
+**根因分析**：
+1. **CHANGELOG.md 缺失 v2.6.0 章节**：`create-github-release.yml` 工作流从 CHANGELOG.md 提取内容，但 CHANGELOG.md 中没有 `## [v2.6.0]` 章节（DEVLOG.md 有完整内容），导致 CI 工作流找不到对应章节。
+2. **Release body 编码损坏**：Release 可能是手动创建时粘贴中文导致 UTF-8 编码丢失，所有多字节中文字符被替换为单字节 `?`（0x3F）。
+
+**修复操作**：
+1. 更新 `CHANGELOG.md`：在 `[Unreleased]` 和 `[v2.5.0]` 之间插入 `[v2.6.0]` 完整章节（内容来自 DEVLOG.md v2.6.0）
+2. 使用 `gh release edit v2.6.0 --notes-file` 更新 Release body，写入正确的 UTF-8 中文内容
+3. 验证：REST API 确认 `gh api repos/ZeroPointSix/outlookEmailPlus/releases/tags/v2.6.0 --jq .body` 返回中文完全正常
+
+**修改文件**：
+- `CHANGELOG.md` — 新增 `[v2.6.0]` 章节
+- GitHub Release v2.6.0 — body 编码修复
+
+**是否改动代码**：否（仅文档和 Release body 修复）
+
+---
+
 #### 273. 图片分析请求 — 模型能力限制诊断与文档同步（无代码改动）
 
 **操作背景**：
