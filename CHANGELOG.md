@@ -4,6 +4,10 @@ All notable changes to OutlookMail Plus are documented in this file.
 
 ## [Unreleased]
 
+### 修复 / Bug Fixes
+
+- **Issue #65 Watchtower 容器镜像过时**：`docker-compose.yml` 中固定 Watchtower 版本为 `containrrr/watchtower:1.7.1`，避免本地缓存的旧版镜像（内嵌 Docker 客户端 API 1.25）连接新版本 Docker Engine（要求 API 1.44+）时失败。README 新增故障排查指引。
+
 ## [v2.5.0] - 2026-05-07
 
 ### 新增功能 / New Features

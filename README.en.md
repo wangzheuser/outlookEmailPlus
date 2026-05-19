@@ -174,7 +174,7 @@ services:
       - outlook-net
 
   watchtower:
-    image: containrrr/watchtower
+    image: containrrr/watchtower:1.7.1
     container_name: watchtower
     restart: unless-stopped
     volumes:
@@ -208,6 +208,13 @@ Notes:
 2. Uncomment the docker.sock volume mount
 3. Switch "Update Method" to "Docker API" in Settings
 4. ⚠️ Please fully understand the security implications before enabling
+
+> ⚠️ **Troubleshooting**: If you see `client version 1.25 is too old. Minimum supported API version is 1.44` in Watchtower logs, your local Watchtower image cache is stale (the embedded Docker client API is too old). Fix:
+> ```bash
+> docker compose pull watchtower    # Pull the latest image
+> docker compose up -d watchtower   # Recreate the container
+> ```
+> The `docker-compose.yml` in this repo has pinned Watchtower to `1.7.1` to prevent this issue.
 
 #### ClawCloud / Reverse Proxy Deployment Notes
 

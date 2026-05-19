@@ -8,6 +8,24 @@
 
 ### 操作记录
 
+#### 275. Issue #65 Watchtower 容器镜像过时修复
+
+**时间**：2026-05-19
+
+**操作背景**：
+用户报告 Issue #65 — docker-compose 部署时 Watchtower 容器报错 `client version 1.25 is too old. Minimum supported API version is 1.44`。根因为 docker-compose.yml 中 Watchtower 使用 `containrrr/watchtower`（默认 `:latest`），但未强制拉取最新镜像，导致本地缓存的旧版镜像（内嵌 Docker 客户端 API 1.25）连接新版本 Docker Engine（要求 API 1.44+）时失败。
+
+**修改内容**：
+
+1. **docker-compose.yml**：Watchtower 镜像固定为 `containrrr/watchtower:1.7.1`
+2. **README.md**：docker-compose 内联示例同步更新版本号；新增故障排查说明
+3. **README.en.md**：同上（英文版）
+4. **CHANGELOG.md**：`[Unreleased]` 下记录本次修复
+
+**是否改动代码**：否（仅配置文件和文档）
+
+---
+
 #### 274. Buggithubissue 分支全量测试 + 服务运行验证
 
 **时间**：2026-05-19
