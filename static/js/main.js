@@ -4486,32 +4486,58 @@ ${details}
 
         async function batchFetchSelectedEmails(accounts) {
             const toastId = 'batch-fetch-toast-' + Date.now();
-            let processedAccounts = 0;
-            let successAccounts = 0;
-            const failedAccounts = [];
+            showPersistentToast(toastId, `${translateAppTextLocal('正在批量拉取邮件')}...`);
 
-            showPersistentToast(toastId, `${translateAppTextLocal('正在批量拉取邮件')} 0 / ${accounts.length}`);
+            const ids = accounts.map(a => a.id);
 
-            for (const acc of accounts) {
-                const result = await fetchLatestFoldersForAccount(acc);
-                processedAccounts++;
+            try {
+                const response = await fetch('/api/emails/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_ids: ids, folders: ['inbox', 'junkemail'], skip: 0, top: 10 })
+                });
+                const data = await response.json();
 
-                if (result.success) {
-                    successAccounts++;
-                } else {
-                    failedAccounts.push(acc.email);
+                dismissPersistentToast(toastId);
+
+                if (!data.success) {
+                    handleApiError(data, translateAppTextLocal('批量拉取失败'));
+                    return;
                 }
 
-                updatePersistentToast(toastId, `${translateAppTextLocal('正在批量拉取邮件')} ${processedAccounts} / ${accounts.length}`);
-            }
+                // 回写缓存 + 刷新当前邮箱
+                let successAccounts = 0;
+                const failedAccounts = [];
 
-            dismissPersistentToast(toastId);
-            const failCount = failedAccounts.length;
-            let msg = `${translateAppTextLocal('批量拉取完成')}：${translateAppTextLocal('成功')} ${successAccounts}，${translateAppTextLocal('失败')} ${failCount}`;
-            if (failCount > 0) {
-                msg += `（${failedAccounts.join(', ')}）`;
+                for (const result of (data.results || [])) {
+                    if (result.success) {
+                        successAccounts++;
+                        const emailAddr = result.email || '';
+                        const folders = result.folders || {};
+                        for (const [folder, folderData] of Object.entries(folders)) {
+                            if (folderData && folderData.success) {
+                                if (folderData.account_summary && typeof syncAccountSummaryToAccountCache === 'function') {
+                                    syncAccountSummaryToAccountCache(emailAddr, folderData.account_summary);
+                                }
+                                cacheBatchFetchedFolder(emailAddr, folder, folderData);
+                                refreshCurrentMailboxIfNeeded(emailAddr, folder, folderData);
+                            }
+                        }
+                    } else {
+                        failedAccounts.push(result.email || result.account_id);
+                    }
+                }
+
+                const failCount = failedAccounts.length;
+                let msg = `${translateAppTextLocal('批量拉取完成')}：${translateAppTextLocal('成功')} ${successAccounts}，${translateAppTextLocal('失败')} ${failCount}`;
+                if (failCount > 0) {
+                    msg += `（${failedAccounts.join(', ')}）`;
+                }
+                showToast(msg, failCount > 0 ? 'warning' : 'success');
+            } catch (error) {
+                dismissPersistentToast(toastId);
+                showToast(translateAppTextLocal('操作失败'), 'error');
             }
-            showToast(msg, failCount > 0 ? 'warning' : 'success');
         }
 
         async function fetchLatestFoldersForAccount(acc) {
