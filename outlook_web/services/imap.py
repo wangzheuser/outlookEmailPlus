@@ -51,7 +51,7 @@ def decode_header_value(header_value: str) -> str:
 
 def get_email_body(msg) -> str:
     """提取邮件正文
-    
+
     优先返回 text/plain，但如果内容太短（<20字符），则回退到 text/html。
     这解决了 Figma 等服务的邮件问题：它们的 text/plain 部分可能几乎为空，
     而正文内容都在 text/html 部分。
@@ -105,7 +105,7 @@ def get_email_body(msg) -> str:
 
 def get_email_body_and_type(msg) -> tuple:
     """提取邮件正文和类型（用于需要区分 HTML/Text 的场景）
-    
+
     返回 (body, body_type) 元组：
     - body: 邮件正文内容
     - body_type: "html" 或 "text"

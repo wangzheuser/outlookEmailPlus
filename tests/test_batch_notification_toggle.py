@@ -13,7 +13,6 @@ import unittest
 
 from tests._import_app import clear_login_attempts, import_web_app_module
 
-
 # ---------------------------------------------------------------------------
 # 辅助函数
 # ---------------------------------------------------------------------------
@@ -118,9 +117,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
             db = get_db()
             for aid in ids:
-                row = db.execute(
-                    "SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)
-                ).fetchone()
+                row = db.execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)).fetchone()
                 self.assertIsNotNone(row)
                 self.assertEqual(row["telegram_push_enabled"], 1)
 
@@ -151,9 +148,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
             db = get_db()
             for aid in ids:
-                row = db.execute(
-                    "SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)
-                ).fetchone()
+                row = db.execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)).fetchone()
                 self.assertEqual(row["telegram_push_enabled"], 0)
 
     # ── 幂等场景 ──────────────────────────────────────────────
@@ -263,9 +258,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
             db = get_db()
             for aid in [id_enabled, id_disabled]:
-                row = db.execute(
-                    "SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)
-                ).fetchone()
+                row = db.execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)).fetchone()
                 self.assertEqual(row["telegram_push_enabled"], 1)
 
     # ── 边界与错误场景 ────────────────────────────────────────
@@ -338,9 +331,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
 
             db = get_db()
             for aid in ids:
-                row = db.execute(
-                    "SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)
-                ).fetchone()
+                row = db.execute("SELECT telegram_push_enabled FROM accounts WHERE id = ?", (aid,)).fetchone()
                 self.assertEqual(row["telegram_push_enabled"], 0)
 
     # ── 鉴权场景 ──────────────────────────────────────────────
@@ -366,9 +357,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
             from outlook_web.db import get_db
 
             db = get_db()
-            aid = _insert_test_account(
-                db, "claimed_note@test.com", enabled=0, pool_status="claimed"
-            )
+            aid = _insert_test_account(db, "claimed_note@test.com", enabled=0, pool_status="claimed")
 
         resp = client.post(
             "/api/accounts/batch-notification-toggle",
@@ -397,9 +386,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
             from outlook_web.db import get_db
 
             db = get_db()
-            aid = _insert_test_account(
-                db, "frozen_note@test.com", enabled=0, pool_status="frozen"
-            )
+            aid = _insert_test_account(db, "frozen_note@test.com", enabled=0, pool_status="frozen")
 
         resp = client.post(
             "/api/accounts/batch-notification-toggle",
@@ -478,9 +465,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
             db = get_db()
             aid = _insert_test_account(db, "lastcheck@test.com", enabled=0)
             # 确认初始为空
-            before = db.execute(
-                "SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (aid,)
-            ).fetchone()
+            before = db.execute("SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (aid,)).fetchone()
             self.assertIsNone(before["telegram_last_checked_at"])
 
         client.post(
@@ -492,9 +477,7 @@ class BatchNotificationToggleApiTests(unittest.TestCase):
             from outlook_web.db import get_db
 
             db = get_db()
-            after = db.execute(
-                "SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (aid,)
-            ).fetchone()
+            after = db.execute("SELECT telegram_last_checked_at FROM accounts WHERE id = ?", (aid,)).fetchone()
             self.assertIsNotNone(after["telegram_last_checked_at"])
 
 
